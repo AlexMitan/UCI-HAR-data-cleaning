@@ -46,7 +46,7 @@ The process of tidying the data was as follows:
 1. Bind the sub-components column-wise into **final_tbl**,
 1. Store the **final** table into a *.tsv* file, since commas are present in the column names. Data is preserved, as tested in the `sanity_checks.r` file.
 1. Create and plot the **mean_all** and **sd_all** datasets analysing the columns of **final_x**.
-1. Use the **final** table to do a short analysis (group by subject and activity, calculate the mean of each).
+1. Use the **final** table to do a short analysis (group by subject and activity, calculate the mean of each feature).
 ## Structure
 
 ---
