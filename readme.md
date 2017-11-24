@@ -46,7 +46,7 @@ The process of tidying the data was as follows:
 1. Bind the sub-components column-wise into **final_tbl**,
 1. Store the **final** table into a *.tsv* file, since commas are present in the column names. Data is preserved, as tested in the `sanity_checks.r` file.
 1. Create and plot the **mean_all** and **sd_all** datasets analysing the columns of **final_x**.
-
+1. Use the **final** table to do a short analysis (group by subject and activity, calculate the mean of each).
 ## Structure
 
 ---
@@ -90,6 +90,16 @@ all(names(recovered_tbl) == names(final_tbl)) # TRUE
 all_equal(recovered_tbl, final_tbl) # TRUE
 ```
 
+- Small-scale test of the analysis of task 6
+
+```R
+mini <- final_tbl[1:5*100, 1:5]
+mini %>%
+    group_by(SubjectLabel, ActivityName) %>% 
+    summarise_all(funs(mean)) %>% 
+    arrange(SubjectLabel, ActivityName)
+```
+
 - Miscellaneous
 
 ```R
@@ -107,7 +117,7 @@ final_tbl %>% group_by(ActivityName) %>% summarise(count=n())
 
 ---
 
-Applying the sd and mean of each row feels inconsistent, and mentioning the frame's name inside the mutation feels wrong. I've heard of `rowwise()` but I'm not completely sure how it could help me here more than what I did. Do I need to provide it with all of the column names, stored as a vector?
+Applying the sd and mean of each row with a different function(`rowMeans` vs `apply, sd`) feels inconsistent, and mentioning the frame's name inside the mutation feels wrong. I've heard of `rowwise()` but I'm not completely sure how it could help me here more than what I did. Do I need to provide it with all of the column names, stored as a vector?
 
 I have knowingly converted the feature names to *underscore_lowecase*, despite the inconsistency with `ActivityName` and `ActivityLabel` as a demonstration while keeping the assignment's literal request in mind. Normally I would keep the same notation, and prefer underscores for all.
 

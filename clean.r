@@ -71,7 +71,7 @@ mean_all %>% t %>% plot
 sd_all %>% t %>% plot
 
 # grouped analysis
-grouped_tbl <- final_tbl %>%
+feature_means <- final_tbl %>%
     group_by(SubjectLabel, ActivityName) %>% 
     summarise_all(funs(mean)) %>% 
     arrange(SubjectLabel, ActivityName)

@@ -163,10 +163,8 @@ $(document).ready(function () {
 <li>Bind the sub-components column-wise into <strong>final_tbl</strong>,</li>
 <li>Store the <strong>final</strong> table into a <em>.tsv</em> file, since commas are present in the column names. Data is preserved, as tested in the <code>sanity_checks.r</code> file.</li>
 <li>Create and plot the <strong>mean_all</strong> and <strong>sd_all</strong> datasets analysing the columns of <strong>final_x</strong>.</li>
+<li>Use the <strong>final</strong> table to do a short analysis (group by subject and activity, calculate the mean of each). ## Structure</li>
 </ol>
-</div>
-<div id="structure" class="section level2">
-<h2>Structure</h2>
 <hr />
 <p>The final dataframe has the following attributes:</p>
 <ul>
@@ -201,6 +199,14 @@ feature_link %&gt;%
 all(names(recovered_tbl) == names(final_tbl)) # TRUE
 all_equal(recovered_tbl, final_tbl) # TRUE</code></pre>
 <ul>
+<li>Small-scale test of the analysis of task 6</li>
+</ul>
+<pre class="r"><code>mini &lt;- final_tbl[1:5*100, 1:5]
+mini %&gt;%
+    group_by(SubjectLabel, ActivityName) %&gt;% 
+    summarise_all(funs(mean)) %&gt;% 
+    arrange(SubjectLabel, ActivityName)</code></pre>
+<ul>
 <li>Miscellaneous</li>
 </ul>
 <pre class="r"><code># No missing values
@@ -215,7 +221,7 @@ final_tbl %&gt;% group_by(ActivityName) %&gt;% summarise(count=n())</code></pre>
 <div id="oddities-difficulties" class="section level2">
 <h2>Oddities / Difficulties</h2>
 <hr />
-<p>Applying the sd and mean of each row feels inconsistent, and mentioning the frame’s name inside the mutation feels wrong. I’ve heard of <code>rowwise()</code> but I’m not completely sure how it could help me here more than what I did. Do I need to provide it with all of the column names, stored as a vector?</p>
+<p>Applying the sd and mean of each row with a different function(<code>rowMeans</code> vs <code>apply, sd</code>) feels inconsistent, and mentioning the frame’s name inside the mutation feels wrong. I’ve heard of <code>rowwise()</code> but I’m not completely sure how it could help me here more than what I did. Do I need to provide it with all of the column names, stored as a vector?</p>
 <p>I have knowingly converted the feature names to <em>underscore_lowecase</em>, despite the inconsistency with <code>ActivityName</code> and <code>ActivityLabel</code> as a demonstration while keeping the assignment’s literal request in mind. Normally I would keep the same notation, and prefer underscores for all.</p>
 <p>There was always the option of doing the entire process in R Markdown, avoiding the “duplication” of code between the cleaning script, the sanity-checks and the report. It might have documented and assisted the process in real time, but I was unsure whether a semi-intensive data processing task is suitable for a live, dynamically-generated markdown report. The sanity checks could have benefitted from real-time rmd. I need further clarification regarding what is and isn’t “Rmd material” and what should stay in a plain R script.</p>
 </div>
