@@ -42,11 +42,12 @@ The process of tidying the data was as follows:
 1. Perform steps 4-6 for the testing dataset analogously.
 1. Assemble the sub-components of the final table (Y, subject data, feature values)
 1. Append a **mean** and **sd** column to **final_x** for analysis of each row.
+1. Select the columns for the **task_5_tbl** before converting feature names, as the pattern is more apparent initially.
 1. Convert the feature names to lowercase, underscore notation.
 1. Bind the sub-components column-wise into **final_tbl**,
 1. Store the **final** table into a *.tsv* file, since commas are present in the column names. Data is preserved, as tested in the `sanity_checks.r` file.
 1. Create and plot the **mean_all** and **sd_all** datasets analysing the columns of **final_x**.
-1. Use the **final** table to do a short analysis (group by subject and activity, calculate the mean of each feature).
+1. Use the **task_5_tbl**, with subject and activity names added, to do a short analysis (group by subject and activity, calculate the mean of each feature).
 ## Structure
 
 ---
@@ -55,7 +56,7 @@ The final dataframe has the following attributes:
 
 - `SubjectLabel` - an integer from 1 to 30, labelling the human volunteer carrying the sensors
 - `ActivityLabel` - an integer from 1 to 6, labelling the activity undertaken (such as walking, laying down). *The effective Y label*
-- `ActivityName` - the name of the activity, found in a one-to-one mapping in `activity_link`
+- `ActivityName` - uppercase string, the name of the activity, found in a one-to-one mapping in `activity_link`
 - **561 other columns** - floats in the interval [-1, 1] describing various sensor readings of velocity and rotation, normalised to the interval
 
 In total, there are **10,299 observations** of **564 variables**.
@@ -100,6 +101,12 @@ mini %>%
     arrange(SubjectLabel, ActivityName)
 ```
 
+- Interesting patterns in the processed data
+
+```R
+plot(feature_means$obs_mean, feature_means$obs_sd)
+```
+
 - Miscellaneous
 
 ```R
@@ -119,6 +126,6 @@ final_tbl %>% group_by(ActivityName) %>% summarise(count=n())
 
 Applying the sd and mean of each row with a different function(`rowMeans` vs `apply, sd`) feels inconsistent, and mentioning the frame's name inside the mutation feels wrong. I've heard of `rowwise()` but I'm not completely sure how it could help me here more than what I did. Do I need to provide it with all of the column names, stored as a vector?
 
-I have knowingly converted the feature names to *underscore_lowecase*, despite the inconsistency with `ActivityName` and `ActivityLabel` as a demonstration while keeping the assignment's literal request in mind. Normally I would keep the same notation, and prefer underscores for all.
+I have knowingly converted the feature names to *underscore_lowercase*, despite the inconsistency with `ActivityName` and `ActivityLabel` as a demonstration while keeping the assignment's literal request in mind. Normally I would keep the same notation, and prefer underscores for all.
 
 There was always the option of doing the entire process in R Markdown, avoiding the "duplication" of code between the cleaning script, the sanity-checks and the report. It might have documented and assisted the process in real time, but I was unsure whether a semi-intensive data processing task is suitable for a live, dynamically-generated markdown report. The sanity checks could have benefitted from real-time rmd. I need further clarification regarding what is and isn't "Rmd material" and what should stay in a plain R script.

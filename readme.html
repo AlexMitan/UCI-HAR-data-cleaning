@@ -159,18 +159,19 @@ $(document).ready(function () {
 <li>Perform steps 4-6 for the testing dataset analogously.</li>
 <li>Assemble the sub-components of the final table (Y, subject data, feature values)</li>
 <li>Append a <strong>mean</strong> and <strong>sd</strong> column to <strong>final_x</strong> for analysis of each row.</li>
+<li>Select the columns for the <strong>task_5_tbl</strong> before converting feature names, as the pattern is more apparent initially.</li>
 <li>Convert the feature names to lowercase, underscore notation.</li>
 <li>Bind the sub-components column-wise into <strong>final_tbl</strong>,</li>
 <li>Store the <strong>final</strong> table into a <em>.tsv</em> file, since commas are present in the column names. Data is preserved, as tested in the <code>sanity_checks.r</code> file.</li>
 <li>Create and plot the <strong>mean_all</strong> and <strong>sd_all</strong> datasets analysing the columns of <strong>final_x</strong>.</li>
-<li>Use the <strong>final</strong> table to do a short analysis (group by subject and activity, calculate the mean of each feature). ## Structure</li>
+<li>Use the <strong>task_5_tbl</strong>, with subject and activity names added, to do a short analysis (group by subject and activity, calculate the mean of each feature). ## Structure</li>
 </ol>
 <hr />
 <p>The final dataframe has the following attributes:</p>
 <ul>
 <li><code>SubjectLabel</code> - an integer from 1 to 30, labelling the human volunteer carrying the sensors</li>
 <li><code>ActivityLabel</code> - an integer from 1 to 6, labelling the activity undertaken (such as walking, laying down). <em>The effective Y label</em></li>
-<li><code>ActivityName</code> - the name of the activity, found in a one-to-one mapping in <code>activity_link</code></li>
+<li><code>ActivityName</code> - uppercase string, the name of the activity, found in a one-to-one mapping in <code>activity_link</code></li>
 <li><strong>561 other columns</strong> - floats in the interval [-1, 1] describing various sensor readings of velocity and rotation, normalised to the interval</li>
 </ul>
 <p>In total, there are <strong>10,299 observations</strong> of <strong>564 variables</strong>.</p>
@@ -207,6 +208,10 @@ mini %&gt;%
     summarise_all(funs(mean)) %&gt;% 
     arrange(SubjectLabel, ActivityName)</code></pre>
 <ul>
+<li>Interesting patterns in the processed data</li>
+</ul>
+<pre class="r"><code>plot(feature_means$obs_mean, feature_means$obs_sd)</code></pre>
+<ul>
 <li>Miscellaneous</li>
 </ul>
 <pre class="r"><code># No missing values
@@ -222,7 +227,7 @@ final_tbl %&gt;% group_by(ActivityName) %&gt;% summarise(count=n())</code></pre>
 <h2>Oddities / Difficulties</h2>
 <hr />
 <p>Applying the sd and mean of each row with a different function(<code>rowMeans</code> vs <code>apply, sd</code>) feels inconsistent, and mentioning the frame’s name inside the mutation feels wrong. I’ve heard of <code>rowwise()</code> but I’m not completely sure how it could help me here more than what I did. Do I need to provide it with all of the column names, stored as a vector?</p>
-<p>I have knowingly converted the feature names to <em>underscore_lowecase</em>, despite the inconsistency with <code>ActivityName</code> and <code>ActivityLabel</code> as a demonstration while keeping the assignment’s literal request in mind. Normally I would keep the same notation, and prefer underscores for all.</p>
+<p>I have knowingly converted the feature names to <em>underscore_lowercase</em>, despite the inconsistency with <code>ActivityName</code> and <code>ActivityLabel</code> as a demonstration while keeping the assignment’s literal request in mind. Normally I would keep the same notation, and prefer underscores for all.</p>
 <p>There was always the option of doing the entire process in R Markdown, avoiding the “duplication” of code between the cleaning script, the sanity-checks and the report. It might have documented and assisted the process in real time, but I was unsure whether a semi-intensive data processing task is suitable for a live, dynamically-generated markdown report. The sanity checks could have benefitted from real-time rmd. I need further clarification regarding what is and isn’t “Rmd material” and what should stay in a plain R script.</p>
 </div>
 </div>

@@ -27,6 +27,9 @@ recovered_tbl <- read_csv('final_tbl.csv')
 all(names(recovered_tbl) == names(final_tbl)) # TRUE
 all_equal(recovered_tbl, final_tbl) # TRUE
 
+# interesting pattern, two obvious clusters
+plot(feature_means$obs_mean, feature_means$obs_sd)
+
 # small-scale verification of the group analysis
 mini <- final_tbl[1:5*100, 1:5]
 mini %>%

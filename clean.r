@@ -2,6 +2,15 @@ library(readr)
 library(dplyr)
 library(stringr)
 
+# function for converting names to underscores
+colnames_to_underscores <- function(colnames) {
+    colnames <- colnames %>%
+        gsub('\\(\\)', '', .) %>% # eliminate parens
+        gsub('-|,|\\(|\\)', '_', .) %>% # other characters to underscores
+        gsub('([a-z])([A-Z])', '\\1_\\L\\2', perl = T, .) %>%  # tBodyAcc -> t_body_acc
+        gsub('__', '_', .) # eliminate duplicate underscores
+    return(colnames)
+}
 
 # read the activity_link and the feature_link datasets
 activity_link <- read_delim('./data/UCI HAR Dataset/activity_labels.txt',
@@ -44,19 +53,16 @@ test_y_tbl <- read_table(
 final_subject <- rbind(train_subject_tbl, test_subject_tbl)
 final_y <- rbind(train_y_tbl, test_y_tbl)
 # add mean and sd for each row while assembling final_x
-final_x <- rbind(train_x_tbl, test_x_tbl) %>% 
-    mutate(
-        obs_mean = rowMeans(final_x),
-        obs_sd = final_x %>% select(-obs_mean) %>% apply(1, sd)
-    )
+final_x <- rbind(train_x_tbl, test_x_tbl)
+final_x$obs_mean <- rowMeans(final_x)
+final_x$obs_sd <- final_x %>% select(-obs_mean) %>% apply(1, sd)
 
-mini %>% mutate(obs_sd = apply(.[,-1], 1, mean))
+# select the proper columns for problem 5 before the conversion
+task_5_tbl <- final_x %>% select(contains('std()'), contains('mean()'))
+
 # convert the feature names to something more uniform
-names(final_x) <- names(final_x) %>%
-    gsub('\\(\\)', '', .) %>% # eliminate parens
-    gsub('-|,', '_', .) %>% # 'coeff-Z,1,2' -> 'coeff_Z_1_2'
-    gsub('([a-z])([A-Z])', '\\1_\\L\\2', perl = T, .) # tBodyAcc -> t_body_acc
-
+names(final_x) <- colnames_to_underscores(names(final_x))
+names(task_5_tbl) <- colnames_to_underscores(names(task_5_tbl))
 
 # stack all of the tables column-wise
 final_tbl <- cbind(final_y, final_subject, final_x)
@@ -64,14 +70,10 @@ final_tbl <- cbind(final_y, final_subject, final_x)
 # write to file
 write_csv(final_tbl, 'final_tbl.csv')
 
-# mean and sd for each feature
-mean_all <- final_x %>% summarise_all(funs(mean))
-sd_all <- final_x %>% summarise_all(funs(sd))
-mean_all %>% t %>% plot
-sd_all %>% t %>% plot
-
 # grouped analysis
-feature_means <- final_tbl %>%
+task_6_tbl <- cbind(final_subject, final_y, task_5_tbl) %>%
+    select(-ActivityLabel) %>% 
     group_by(SubjectLabel, ActivityName) %>% 
-    summarise_all(funs(mean)) %>% 
-    arrange(SubjectLabel, ActivityName)
+    arrange(SubjectLabel, ActivityName) %>% 
+    summarise_all(funs(mean))
+
