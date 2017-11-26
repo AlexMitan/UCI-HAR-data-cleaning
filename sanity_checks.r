@@ -36,3 +36,10 @@ mini %>%
     group_by(SubjectLabel, ActivityName) %>% 
     summarise_all(funs(mean)) %>% 
     arrange(SubjectLabel, ActivityName)
+
+# some testing with the bands features
+bands_tbl <- final_tbl %>%
+    select(ActivityName,contains('bands')) %>%
+    group_by(ActivityName) %>%
+    summarise_all(funs(mean))
+
