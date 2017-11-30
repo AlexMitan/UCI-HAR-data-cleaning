@@ -29,8 +29,13 @@ recovered_tbl <- readr::read_csv('complete_tbl.csv')
 all(names(recovered_tbl) == names(complete_tbl)) # TRUE
 all_equal(recovered_tbl, complete_tbl) # TRUE
 
-# # interesting pattern, two obvious clusters
-# plot(feature_means$obs_mean, feature_means$obs_sd)
+
+# # interesting pattern, two-three obvious clusters
+feature_means <- complete_tbl %>%
+    dplyr::group_by(SubjectLabel, ActivityName) %>% 
+    dplyr::summarise_all(funs(mean)) %>% 
+    dplyr::arrange(SubjectLabel, ActivityName)
+plot(feature_means$obs_mean, feature_means$obs_sd)
 
 # small-scale verification of the group analysis
 mini <- complete_tbl[1:5*100, 1:5]
