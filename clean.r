@@ -17,11 +17,11 @@ colnames_to_underscores <- function(colnames) {
 }
 
 # read the activity_link and the feature_link datasets
-activity_link <- read_delim(
+activity_link <- readr::read_delim(
     './data/UCI HAR Dataset/activity_labels.txt',
     delim = ' ',
     col_names = c("ActivityLabel", "ActivityName"))
-feature_link <- read_delim(
+feature_link <- readr::read_delim(
     './data/UCI HAR Dataset/features.txt',
     delim = ' ',
     col_names = c("FeatureLabel", "FeatureName"))
@@ -30,37 +30,37 @@ feature_link <- read_delim(
 # join the ActivityLabel and ActivityName 
 # there exist duplicate feature names, so we unite them with their ID
 # no assumptions or corrections are made
-feature_key <- str_c(
+feature_key <- stringr::str_c(
     feature_link$FeatureLabel, 
     feature_link$FeatureName,
     sep = ":")
 
 
 # training dataframe
-train_subject_tbl <- read_table(
+train_subject_tbl <- readr::read_table(
     './data/UCI HAR Dataset/train/subject_train.txt',
     col_names = c('SubjectLabel'))
-train_x_tbl <- read_table(
+train_x_tbl <- readr::read_table(
     './data/UCI HAR Dataset/train/X_train.txt',
     col_names = feature_key)
 
 # get the activity data and link it to the names
-train_y_tbl <- read_table(
+train_y_tbl <- readr::read_table(
     './data/UCI HAR Dataset//train/y_train.txt',
     col_names = 'ActivityLabel') %>% 
-        right_join(activity_link, by = 'ActivityLabel')
+        dplyr::right_join(activity_link, by = 'ActivityLabel')
 
 
 # test dataframe
-test_subject_tbl <- read_table(
+test_subject_tbl <- readr::read_table(
     './data/UCI HAR Dataset/test/subject_test.txt',
     col_names = c('SubjectLabel'))
-test_x_tbl <- read_table(
+test_x_tbl <- readr::read_table(
     './data/UCI HAR Dataset/test/X_test.txt',
     col_names = feature_key)
 
 # get the activity data and link it to the names
-test_y_tbl <- read_table(
+test_y_tbl <- readr::read_table(
     './data/UCI HAR Dataset//test/y_test.txt',
     col_names = 'ActivityLabel') %>% 
         right_join(activity_link, by = 'ActivityLabel')
@@ -72,10 +72,10 @@ complete_y <- rbind(train_y_tbl, test_y_tbl)
 # add mean and sd for each row while assembling complete_x
 complete_x <- rbind(train_x_tbl, test_x_tbl)
 complete_x$obs_mean <- rowMeans(complete_x)
-complete_x$obs_sd <- complete_x %>% select(-obs_mean) %>% apply(1, sd)
+complete_x$obs_sd <- complete_x %>% dplyr::select(-obs_mean) %>% apply(1, sd)
 
-# select the proper columns for problem 5 before the conversion
-task_5_tbl <- complete_x %>% select(contains('std()'), contains('mean()'))
+# dplyr::select the proper columns for problem 5 before the conversion
+task_5_tbl <- complete_x %>% dplyr::select(contains('std()'), contains('mean()'))
 
 # convert the feature names to something more uniform
 names(complete_x) <- colnames_to_underscores(names(complete_x))
@@ -85,12 +85,12 @@ names(task_5_tbl) <- colnames_to_underscores(names(task_5_tbl))
 complete_tbl <- cbind(complete_y, complete_subject, complete_x)
 
 # write to file
-write_csv(complete_tbl, 'complete_tbl.csv')
+readr::write_csv(complete_tbl, 'complete_tbl.csv')
 
 # grouped analysis
 task_6_tbl <- cbind(complete_subject, complete_y, task_5_tbl) %>%
-    select(-ActivityLabel) %>% 
-    group_by(SubjectLabel, ActivityName) %>% 
-    arrange(SubjectLabel, ActivityName) %>% 
-    summarise_all(funs(mean))
+    dplyr::select(-ActivityLabel) %>% 
+    dplyr::group_by(SubjectLabel, ActivityName) %>% 
+    dplyr::arrange(SubjectLabel, ActivityName) %>% 
+    dplyr::summarise_all(funs(mean))
 
