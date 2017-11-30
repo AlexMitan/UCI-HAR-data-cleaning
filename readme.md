@@ -40,13 +40,13 @@ The process of tidying the data was as follows:
 1. Read the **train_x table**, which provides the raw data, consisting of values within [-1, 1].
 1. Read the **train_y table**, providing the labels of the activities performed, and immediately join it with the unique feature keys from **activity_link's** columns.
 1. Perform steps 4-6 for the testing dataset analogously.
-1. Assemble the sub-components of the final table (Y, subject data, feature values)
-1. Append a **mean** and **sd** column to **final_x** for analysis of each row.
+1. Assemble the sub-components of the final (**complete**) table (Y, subject data, feature values)
+1. Append a **mean** and **sd** column to **complete_x** for analysis of each row.
 1. Select the columns for the **task_5_tbl** before converting feature names, as the pattern is more apparent initially.
 1. Convert the feature names to lowercase, underscore notation.
-1. Bind the sub-components column-wise into **final_tbl**,
+1. Bind the sub-components column-wise into **complete_tbl**,
 1. Store the **final** table into a *.tsv* file, since commas are present in the column names. Data is preserved, as tested in the `sanity_checks.r` file.
-1. Create and plot the **mean_all** and **sd_all** datasets analysing the columns of **final_x**.
+1. Create and plot the **mean_all** and **sd_all** datasets analysing the columns of **complete_x**.
 1. Use the **task_5_tbl**, with subject and activity names added, to do a short analysis (group by subject and activity, calculate the mean of each feature).
 ## Structure
 
@@ -86,15 +86,15 @@ feature_link %>%
 - Checking that data is preserved
 
 ```R
-recovered_tbl <- read_csv('final_tbl.csv')
-all(names(recovered_tbl) == names(final_tbl)) # TRUE
-all_equal(recovered_tbl, final_tbl) # TRUE
+recovered_tbl <- read_csv('complete_tbl.csv')
+all(names(recovered_tbl) == names(complete_tbl)) # TRUE
+all_equal(recovered_tbl, complete_tbl) # TRUE
 ```
 
 - Small-scale test of the analysis of task 6
 
 ```R
-mini <- final_tbl[1:5*100, 1:5]
+mini <- complete_tbl[1:5*100, 1:5]
 mini %>%
     group_by(SubjectLabel, ActivityName) %>% 
     summarise_all(funs(mean)) %>% 
@@ -111,13 +111,13 @@ plot(feature_means$obs_mean, feature_means$obs_sd)
 
 ```R
 # No missing values
-all(complete.cases(final_tbl))
+all(complete.cases(complete_tbl))
 
 # No values outside of [-1, 1]
 all(test_x_tbl >= -1 & test_x_tbl <= 1)
 
 # "LAYING" seems to be the most commonly measured activity
-final_tbl %>% group_by(ActivityName) %>% summarise(count=n())
+complete_tbl %>% group_by(ActivityName) %>% summarise(count=n())
 ```
 
 ## Oddities / Difficulties
@@ -129,3 +129,5 @@ Applying the sd and mean of each row with a different function(`rowMeans` vs `ap
 I have knowingly converted the feature names to *underscore_lowercase*, despite the inconsistency with `ActivityName` and `ActivityLabel` as a demonstration while keeping the assignment's literal request in mind. Normally I would keep the same notation, and prefer underscores for all.
 
 There was always the option of doing the entire process in R Markdown, avoiding the "duplication" of code between the cleaning script, the sanity-checks and the report. It might have documented and assisted the process in real time, but I was unsure whether a semi-intensive data processing task is suitable for a live, dynamically-generated markdown report. The sanity checks could have benefitted from real-time rmd. I need further clarification regarding what is and isn't "Rmd material" and what should stay in a plain R script.
+
+I have tried to use packrat, and although it seemed straight-forward, it's not entirely obvious to me whether or not it's necessary in this process. The downside of making the project very heavy seems significant.
